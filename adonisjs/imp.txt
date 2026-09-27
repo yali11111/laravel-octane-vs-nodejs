@@ -15,3 +15,12 @@ Route.get('/external-service', async () => {
     }
   }
 })
+
+=======================================
+import Route from '@ioc:Adonis/Core/Route'
+
+Route.get('/hello', async () => {
+  return {
+    message: 'Hello World',
+  }
+})

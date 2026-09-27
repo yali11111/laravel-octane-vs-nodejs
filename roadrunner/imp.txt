@@ -1,0 +1,62 @@
+<?php
+
+use Spiral\RoadRunner;
+use Nyholm\Psr7\Factory\Psr17Factory;
+use Spiral\RoadRunner\Http\PSR7Worker;
+
+require __DIR__ . '/vendor/autoload.php';
+
+$worker = RoadRunner\Worker::create();
+$factory = new Psr17Factory();
+
+$psr7 = new PSR7Worker(
+    $worker,
+    $factory,
+    $factory,
+    $factory
+);
+
+while (true) {
+    try {
+        $psr7->waitRequest();
+
+        if (!$psr7->waitRequest()) {
+            break;
+        }
+
+        $request = $psr7->getRequest();
+
+        if (
+            $request->getMethod() === 'GET' &&
+            $request->getUri()->getPath() === '/hello'
+        ) {
+            $response = new \Nyholm\Psr7\Response(
+                200,
+                ['Content-Type' => 'application/json'],
+                json_encode([
+                    'message' => 'Hello World',
+                ])
+            );
+        } else {
+            $response = new \Nyholm\Psr7\Response(
+                404,
+                ['Content-Type' => 'application/json'],
+                json_encode([
+                    'message' => 'Not Found',
+                ])
+            );
+        }
+
+        $psr7->respond($response);
+    } catch (\Throwable $e) {
+        $psr7->respond(
+            new \Nyholm\Psr7\Response(
+                500,
+                ['Content-Type' => 'application/json'],
+                json_encode([
+                    'message' => 'Internal Server Error',
+                ])
+            )
+        );
+    }
+}
