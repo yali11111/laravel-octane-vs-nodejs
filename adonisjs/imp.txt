@@ -1,0 +1,17 @@
+
+adonisjs/start/routes.ts
+
+import Route from '@ioc:Adonis/Core/Route'
+import axios from 'axios'
+
+Route.get('/external-service', async () => {
+  try {
+    const result = await axios.get('http://localhost:3000/data')
+
+    return result.data
+  } catch (error) {
+    return {
+      error: `Error fetching data from the external endpoint: ${error.message}`,
+    }
+  }
+})
